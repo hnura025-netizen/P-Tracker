@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <meta name="theme-color" content="#2a7de1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Job Payment" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- PWA Manifest (external file) -->
+    <link rel="manifest" href="manifest.json" />
+    
+    <title>Job Payment · Weekly Tracker (₦)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        ::-webkit-scrollbar { width: 0; height: 0; }
+        body {
+            font-family: -apple-system, 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #f0f5fe;
+            min-height: 100vh;
+            padding: 0.75rem 0.75rem 5rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overscroll-behavior: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        @media (display-mode: standalone), (display-mode: fullscreen) {
+            body {
+                padding-top: env(safe-area-inset-top, 0.75rem);
+                padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0rem));
+            }
+            .bottom-nav { padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0rem)); }
+        }
+        .app-wrapper { max-width: 480px; width: 100%; margin: 0 auto; }
+        .app-card {
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 20, 40, 0.08);
+            padding: 1.25rem 1.25rem 1.5rem;
+            width: 100%;
+        }
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0b2b4a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        h1 i { color: #2a7de1; font-size: 1.3rem; }
+        .section {
+            background: #f9fcff;
+            border-radius: 1.5rem;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e6edf6;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1a3f5e;
+            margin-bottom: 0.8rem;
+        }
+        .section-title i { color: #2a7de1; width: 1.5rem; font-size: 1rem; }
+        .flex-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        .input-group label {
+            font-weight: 500;
+            color: #1e3b57;
+            font-size: 0.8rem;
+        }
+        .input-group input {
+            padding: 0.7rem 1rem;
+            border: 1.5px solid #d5dfea;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white;
+            transition: 0.15s;
+            outline: none;
+            width: 100%;
+            -webkit-appearance: none;
+        }
+        .input-group input:focus {
+            border-color: #2a7de1;
+            box-shadow: 0 0 0 3px rgba(42, 125, 225, 0.12);
+        }
+        .input-group input[type="number"] { -moz-appearance: textfield; }
+        .input-group input[type="number"]::-webkit-outer-spin-button,
+        .input-group input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+        .btn {
+            background: #2a7de1;
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 8px rgba(42, 125, 225, 0.15);
+            border: 1px solid transparent;
+            width: 100%;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+        }
+        .btn:active { transform: scale(0.96); background: #1b62b5; }
+        .btn-secondary {
+            background: #e9f0f9;
+            color: #1f4a72;
+            box-shadow: none;
+            border: 1px solid #d0ddee;
+        }
+        .btn-secondary:active { background: #d7e3f2; }
+        .btn-success {
+            background: #1e8b4c;
+            box-shadow: 0 4px 8px rgba(30, 139, 76, 0.2);
+        }
+        .btn-success:active { background: #15723d; }
+        .btn-danger {
+            background: #b13e3e;
+            box-shadow: 0 4px 8px rgba(177, 62, 62, 0.2);
+        }
+        .btn-danger:active { background: #8f3232; }
+        .btn-warning {
+            background: #e67e22;
+            box-shadow: 0 4px 8px rgba(230, 126, 34, 0.2);
+        }
+        .btn-warning:active { background: #d35400; }
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            background: transparent;
+            border: 1.5px solid #d5dfea;
+            color: #2b4b6b;
+            box-shadow: none;
+            width: auto;
+        }
+        .btn-sm:active { background: #eef4fa; }
+        .btn-sm.danger { color: #b13e3e; border-color: #f1d4d4; }
+        .btn-sm.danger:active { background: #fce9e9; }
+        .balance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+            margin: 0.7rem 0 0.8rem;
+        }
+        .balance-item {
+            background: white;
+            border-radius: 1rem;
+            padding: 0.6rem 0.3rem;
+            text-align: center;
+            border: 1px solid #e2ebf5;
+        }
+        .balance-item .label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            color: #5c7b99;
+            font-weight: 600;
+        }
+        .balance-item .amount {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0b2b4a;
+            margin-top: 0.05rem;
+            word-break: break-word;
+        }
+        .balance-item .amount.positive { color: #0f7b3a; }
+        .balance-item .amount.negative { color: #b13e3e; }
+        .balance-item .amount.warning { color: #e67e22; }
+        .collection-list { margin-top: 0.3rem; }
+        .list-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 0.3rem;
+            font-weight: 600;
+            color: #3f6180;
+            padding: 0.3rem 0.2rem 0.5rem;
+            border-bottom: 1px solid #dde7f2;
+            font-size: 0.7rem;
+            letter-spacing: 0.2px;
+        }
+        .list-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 0.3rem;
+            align-items: center;
+            padding: 0.5rem 0.2rem;
+            border-bottom: 1px solid #eef4fa;
+            font-size: 0.85rem;
+        }
+        .list-item:last-child { border-bottom: none; }
+        .list-item .day-label { font-weight: 500; color: #1e3b57; }
+        .list-item .day-amount { font-weight: 600; color: #0b2b4a; }
+        .list-item .day-collected { font-weight: 600; color: #2a7de1; }
+        .empty-message { color: #6e8aa8; font-style: italic; padding: 1rem 0 0.3rem; text-align: center; font-size: 0.9rem; }
+        .footer-note {
+            font-size: 0.7rem;
+            color: #6a8aa8;
+            text-align: center;
+            margin-top: 0.8rem;
+            border-top: 1px solid #e6edf6;
+            padding-top: 0.8rem;
+        }
+        .highlight-box {
+            background: #eaf3ff;
+            border-radius: 1rem;
+            padding: 0.6rem 1rem;
+            margin-top: 0.6rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        .highlight-box .label { font-weight: 500; color: #1a3f5e; font-size: 0.85rem; }
+        .highlight-box .value { font-weight: 700; font-size: 1.1rem; color: #0b2b4a; }
+        .badge {
+            background: #2a7de1;
+            color: white;
+            border-radius: 20px;
+            padding: 0.05rem 0.7rem;
+            font-size: 0.65rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e2ebf5;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.4rem 0.5rem 0.6rem;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+            z-index: 1000;
+            max-width: 480px;
+            margin: 0 auto;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            border-radius: 1.5rem 1.5rem 0 0;
+        }
+        .bottom-nav .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: transparent;
+            border: none;
+            color: #8a9bb0;
+            font-size: 0.6rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0.2rem 0.4rem;
+            border-radius: 12px;
+            transition: 0.1s;
+            text-decoration: none;
+            gap: 0.05rem;
+            font-family: inherit;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            min-width: 3.5rem;
+        }
+        .bottom-nav .nav-item i {
+            font-size: 1.4rem;
+            margin-bottom: 0.05rem;
+            transition: 0.1s;
+        }
+        .bottom-nav .nav-item span {
+            line-height: 1.2;
+            font-size: 0.6rem;
+        }
+        .bottom-nav .nav-item:active { transform: scale(0.92); }
+        .bottom-nav .nav-item.active {
+            color: #2a7de1;
+            font-weight: 600;
+        }
+        .bottom-nav .nav-item.active i { color: #2a7de1; }
+        .week-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 0.7rem 0.9rem;
+            margin-bottom: 0.6rem;
+            border: 1px solid #e2ebf5;
+        }
+        .week-card .week-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            color: #0b2b4a;
+            margin-bottom: 0.3rem;
+            font-size: 0.85rem;
+        }
+        .week-card .week-detail {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #3f6180;
+            padding: 0.15rem 0;
+        }
+        .week-card .week-detail span:last-child { font-weight: 600; color: #0b2b4a; }
+        .settle-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .settle-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .settle-row .btn { width: 100%; }
+        .section-hidden {
+            display: none !important;
+        }
+        .settings-display {
+            background: #eaf3ff;
+            border-radius: 0.8rem;
+            padding: 0.6rem 1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .settings-display .label { font-weight: 500; color: #1a3f5e; font-size: 0.85rem; }
+        .settings-display .value { font-weight: 700; font-size: 1.1rem; color: #0b2b4a; }
+        .today-box {
+            background: #e8f5e9;
+            border-radius: 0.8rem;
+            padding: 0.6rem 1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #c8e6c9;
+        }
+        .today-box .label { font-weight: 500; color: #1e3b57; font-size: 0.85rem; }
+        .today-box .value { font-weight: 700; font-size: 1rem; color: #0b2b4a; }
+        .info-box {
+            background: #fff3cd;
+            border-radius: 0.8rem;
+            padding: 0.6rem 1rem;
+            margin: 0.5rem 0;
+            border: 1px solid #ffeaa7;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .info-box i { color: #e67e22; }
+        .info-box .text { font-size: 0.8rem; color: #856404; }
+        .install-banner {
+            background: linear-gradient(135deg, #2a7de1, #1b62b5);
+            color: white;
+            border-radius: 1rem;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        .install-banner.show { display: flex; }
+        .install-banner .text { font-size: 0.85rem; font-weight: 500; }
+        .install-banner .btn-install {
+            background: white;
+            color: #2a7de1;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .install-banner .btn-install:active { transform: scale(0.95); }
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #2a7de1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease-out;
+        }
+        .splash-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .splash-screen .splash-icon {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #2a7de1;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        .splash-screen .splash-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+        }
+        .splash-screen .splash-sub {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        /* Toast & Modal Styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 90%;
+            max-width: 420px;
+            pointer-events: none;
+        }
+        .toast {
+            background: white;
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: auto;
+            border-left: 5px solid #2a7de1;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.hide { transform: translateY(-20px); opacity: 0; }
+        .toast .toast-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .toast.success .toast-icon { background: #e8f5e9; color: #1e8b4c; }
+        .toast.error .toast-icon { background: #fce4ec; color: #b13e3e; }
+        .toast.warning .toast-icon { background: #fff3e0; color: #e67e22; }
+        .toast.info .toast-icon { background: #e3f2fd; color: #2a7de1; }
+        .toast .toast-content { flex: 1; }
+        .toast .toast-title { font-weight: 600; font-size: 0.9rem; color: #0b2b4a; margin-bottom: 2px; }
+        .toast .toast-message { font-size: 0.8rem; color: #5c7b99; }
+        .toast .toast-close { background: none; border: none; color: #8a9bb0; font-size: 1.2rem; cursor: pointer; padding: 4px; pointer-events: auto; }
+        .toast.success { border-left-color: #1e8b4c; }
+        .toast.error { border-left-color: #b13e3e; }
+        .toast.warning { border-left-color: #e67e22; }
+        .toast.info { border-left-color: #2a7de1; }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 20px;
+        }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+        .modal-box {
+            background: white;
+            border-radius: 24px;
+            padding: 28px 24px 24px;
+            max-width: 380px;
+            width: 100%;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+        }
+        .modal-overlay.show .modal-box { transform: scale(1) translateY(0); }
+        .modal-box .modal-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 16px;
+        }
+        .modal-box .modal-icon.success { background: #e8f5e9; color: #1e8b4c; }
+        .modal-box .modal-icon.error { background: #fce4ec; color: #b13e3e; }
+        .modal-box .modal-icon.warning { background: #fff3e0; color: #e67e22; }
+        .modal-box .modal-icon.info { background: #e3f2fd; color: #2a7de1; }
+        .modal-box .modal-title { font-size: 1.1rem; font-weight: 700; color: #0b2b4a; text-align: center; margin-bottom: 8px; }
+        .modal-box .modal-message { font-size: 0.9rem; color: #5c7b99; text-align: center; margin-bottom: 20px; line-height: 1.5; }
+        .modal-box .modal-actions { display: flex; gap: 10px; flex-direction: column; }
+        .modal-box .modal-actions .btn { width: 100%; padding: 0.7rem; font-size: 0.9rem; border-radius: 12px; }
+        .modal-box .modal-actions .btn-secondary { background: #e9f0f9; color: #1f4a72; box-shadow: none; border: 1px solid #d0ddee; }
+        .modal-box .modal-actions .btn-secondary:active { background: #d7e3f2; }
+        @media (min-width: 481px) {
+            .modal-box .modal-actions { flex-direction: row; }
+            .modal-box .modal-actions .btn { flex: 1; }
+            .toast-container { width: auto; min-width: 300px; max-width: 420px; }
+        }
+        @media (max-width: 400px) {
+            .app-card { padding: 0.8rem 0.8rem 1rem; }
+            .section { padding: 0.8rem; }
+            .balance-grid { grid-template-columns: 1fr 1fr 1fr; gap: 0.3rem; }
+            .balance-item .amount { font-size: 1rem; }
+            .bottom-nav .nav-item { min-width: 3rem; }
+            .bottom-nav .nav-item i { font-size: 1.2rem; }
+            .bottom-nav .nav-item span { font-size: 0.5rem; }
+            .list-header, .list-item { grid-template-columns: 1.5fr 1fr 1fr; font-size: 0.75rem; }
+        }
+        @media (min-width: 481px) {
+            .bottom-nav { border-radius: 2rem 2rem 0 0; }
+            .flex-row { flex-direction: row; flex-wrap: wrap; }
+            .flex-row .input-group { flex: 1 1 140px; }
+            .flex-row .btn { width: auto; flex: 0 1 auto; }
+            .settle-row { flex-direction: row; }
+            .settle-row .btn { width: auto; flex: 1; }
+        }
+    </style>
+</head>
+<body>
+<!-- Splash Screen -->
+<div class="splash-screen" id="splashScreen">
+    <div class="splash-icon">₦</div>
+    <div class="splash-title">Job Payment</div>
+    <div class="splash-sub">Weekly Tracker</div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box" id="modalBox">
+        <div class="modal-icon" id="modalIcon">✓</div>
+        <div class="modal-title" id="modalTitle">Success</div>
+        <div class="modal-message" id="modalMessage">Action completed successfully.</div>
+        <div class="modal-actions" id="modalActions">
+            <button class="btn" id="modalConfirmBtn">OK</button>
+        </div>
+    </div>
+</div>
+
+<div class="app-wrapper">
+    <div class="app-card" id="app">
+        <h1><i class="fas fa-wallet"></i> Job Payment</h1>
+
+        <!-- Install Banner -->
+        <div class="install-banner" id="installBanner">
+            <span class="text"><i class="fas fa-download"></i> Install for full app experience</span>
+            <button class="btn-install" id="installBtn">Install</button>
+        </div>
+
+        <!-- SECTION: SETTINGS -->
+        <div class="section" id="sectionSettings">
+            <div class="section-title"><i class="fas fa-cog"></i> Settings</div>
+            <div style="margin-top:0.8rem;">
+                <div class="flex-row">
+                    <div class="input-group">
+                        <label><i class="fas fa-bullseye"></i> Daily Collection (₦)</label>
+                        <input type="number" id="settingsTargetInput" placeholder="e.g. 1000" step="1" min="0" />
+                    </div>
+                    <button class="btn" id="saveSettingsBtn"><i class="fas fa-save"></i> Save</button>
+                </div>
+                <div style="margin-top:0.5rem; font-size:0.8rem; color:#5c7b99; text-align:center;">
+                    <i class="fas fa-info-circle"></i> Set the amount you collect daily (e.g., ₦1000)
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: ADD RECORD -->
+        <div class="section" id="sectionAdd">
+            <div class="section-title"><i class="fas fa-plus-circle"></i> Record daily collection</div>
+            <div class="settings-display">
+                <span class="label"><i class="fas fa-bullseye"></i> Daily Collection</span>
+                <span class="value" id="displayTarget">₦0</span>
+            </div>
+            <div class="today-box">
+                <span class="label"><i class="far fa-calendar-alt"></i> Today</span>
+                <span class="value" id="todayDisplay">-</span>
+            </div>
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <span class="text">Enter your total earnings today. You'll collect your daily target now, and the rest at the end of the week.</span>
+            </div>
+            <div class="flex-row">
+                <div class="input-group">
+                    <label><i class="fas fa-coins"></i> Today's Earnings (₦)</label>
+                    <input type="number" id="collectedInput" placeholder="0.00" step="0.01" min="0" />
+                </div>
+                <button class="btn" id="addBtn"><i class="fas fa-plus-circle"></i> Record</button>
+            </div>
+            <div style="margin-top:0.5rem; background:#e8f5e9; padding:0.5rem; border-radius:0.8rem; text-align:center; font-size:0.8rem; color:#1e3b57;">
+                <i class="fas fa-calculator"></i> You collect <strong id="dailyCollectDisplay">₦0</strong> today · <strong id="remainingDisplay">₦0</strong> goes to end of week
+            </div>
+            <div style="margin-top:0.6rem;">
+                <button class="btn btn-sm" id="clearAllBtn"><i class="fas fa-trash-alt"></i> Clear records</button>
+            </div>
+        </div>
+
+        <!-- SECTION: DASHBOARD -->
+        <div class="section" id="sectionDashboard" style="margin-bottom:0.5rem;">
+            <div class="section-title"><i class="fas fa-chart-pie"></i> Dashboard</div>
+            <div class="balance-grid">
+                <div class="balance-item"><div class="label">Collected</div><div class="amount" id="totalCollected">₦0</div></div>
+                <div class="balance-item"><div class="label">Days</div><div class="amount" id="daysWorked">0</div></div>
+                <div class="balance-item"><div class="label">End of Week</div><div class="amount positive" id="endOfWeekBalance">₦0</div></div>
+            </div>
+            <div class="highlight-box">
+                <span class="label"><i class="fas fa-calendar-week"></i> Weekly balance</span>
+                <span class="value" id="weeklyBalanceDisplay">₦0.00</span>
+                <span class="badge" id="weeklyStatusBadge">on track</span>
+            </div>
+            <div class="collection-list">
+                <div class="list-header"><span>Day</span><span>Earnings</span><span>Collected</span></div>
+                <div id="collectionItems"><div class="empty-message">No records this week.</div></div>
+            </div>
+        </div>
+
+        <!-- SECTION: HISTORY & SETTLE -->
+        <div class="section" id="sectionHistory">
+            <div class="section-title"><i class="fas fa-history"></i> History &amp; settle</div>
+            <div class="settle-section">
+                <div class="settle-row">
+                    <button class="btn btn-success" id="weeklySettleBtn"><i class="fas fa-check-double"></i> Settle week</button>
+                    <button class="btn btn-danger" id="resetBtn"><i class="fas fa-undo-alt"></i> Reset all</button>
+                </div>
+                <div style="font-size:0.75rem; color:#5c7b99; padding:0.1rem 0; text-align:center;">
+                    <i class="fas fa-info-circle"></i> Settle: collect remaining balance, reset to zero, keep history
+                </div>
+            </div>
+            <div style="margin-top:1rem;">
+                <div class="section-title" style="margin-bottom:0.6rem; font-size:0.85rem;"><i class="fas fa-folder-open"></i> Past weeks</div>
+                <div id="historyContainer">
+                    <div class="empty-message" style="font-size:0.8rem;">No past weeks yet.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note"><i class="fas fa-database"></i> Data stored locally · <span id="versionDisplay">v1.0</span></div>
+    </div>
+</div>
+
+<!-- BOTTOM NAVIGATION -->
+<nav class="bottom-nav" id="bottomNav">
+    <button class="nav-item" data-section="sectionSettings" id="navSettings">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+    </button>
+    <button class="nav-item active" data-section="sectionAdd" id="navAdd">
+        <i class="fas fa-plus-circle"></i>
+        <span>Add</span>
+    </button>
+    <button class="nav-item" data-section="sectionDashboard" id="navDashboard">
+        <i class="fas fa-chart-pie"></i>
+        <span>Dashboard</span>
+    </button>
+    <button class="nav-item" data-section="sectionHistory" id="navHistory">
+        <i class="fas fa-history"></i>
+        <span>History</span>
+    </button>
+</nav>
+
+<script>
+    (function() {
+        const STORAGE_KEY = 'jobPaymentWeekly_v7';
+        const APP_VERSION = '1.0.0';
+        let records = [];
+        let lastSettlement = null;
+        let weekHistory = [];
+        let dailyTarget = 0;
+        let deferredPrompt = null;
+
+        const settingsTargetInput = document.getElementById('settingsTargetInput');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        const displayTarget = document.getElementById('displayTarget');
+        const todayDisplay = document.getElementById('todayDisplay');
+        const collectedInput = document.getElementById('collectedInput');
+        const addBtn = document.getElementById('addBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const weeklySettleBtn = document.getElementById('weeklySettleBtn');
+        const collectionContainer = document.getElementById('collectionItems');
+        const historyContainer = document.getElementById('historyContainer');
+        const totalCollectedEl = document.getElementById('totalCollected');
+        const daysWorkedEl = document.getElementById('daysWorked');
+        const endOfWeekBalanceEl = document.getElementById('endOfWeekBalance');
+        const weeklyBalanceDisplay = document.getElementById('weeklyBalanceDisplay');
+        const weeklyStatusBadge = document.getElementById('weeklyStatusBadge');
+        const dailyCollectDisplay = document.getElementById('dailyCollectDisplay');
+        const remainingDisplay = document.getElementById('remainingDisplay');
+        const versionDisplay = document.getElementById('versionDisplay');
+        const installBanner = document.getElementById('installBanner');
+        const installBtn = document.getElementById('installBtn');
+        const splashScreen = document.getElementById('splashScreen');
+        const navSettings = document.getElementById('navSettings');
+        const navAdd = document.getElementById('navAdd');
+        const navDashboard = document.getElementById('navDashboard');
+        const navHistory = document.getElementById('navHistory');
+
+        const toastContainer = document.getElementById('toastContainer');
+        function showToast(message, type = 'info', title = '') {
+            const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-circle', info: 'fa-info-circle' };
+            const titles = { success: 'Success', error: 'Error', warning: 'Warning', info: 'Information' };
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fas ${icons[type] || icons.info}"></i></div>
+                <div class="toast-content">
+                    <div class="toast-title">${title || titles[type] || 'Info'}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close">&times;</button>
+            `;
+            toast.querySelector('.toast-close').addEventListener('click', () => hideToast(toast));
+            toastContainer.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => hideToast(toast), 4000);
+            return toast;
+        }
+        function hideToast(toast) {
+            toast.classList.remove('show');
+            toast.classList.add('hide');
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 400);
+        }
+
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalIcon = document.getElementById('modalIcon');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalActions = document.getElementById('modalActions');
+        let modalResolve = null;
+
+        function showModal(message, type = 'info', title = '', confirmText = 'OK', showCancel = false) {
+            return new Promise((resolve) => {
+                const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-circle', info: 'fa-info-circle' };
+                const titles = { success: 'Success', error: 'Error', warning: 'Warning', info: 'Information' };
+                modalIcon.className = `modal-icon ${type}`;
+                modalIcon.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i>`;
+                modalTitle.textContent = title || titles[type] || 'Info';
+                modalMessage.textContent = message;
+                modalActions.innerHTML = '';
+                if (showCancel) {
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.className = 'btn btn-secondary';
+                    cancelBtn.textContent = 'Cancel';
+                    cancelBtn.addEventListener('click', () => { closeModal(); resolve(false); });
+                    modalActions.appendChild(cancelBtn);
+                }
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = 'btn';
+                confirmBtn.textContent = confirmText;
+                confirmBtn.addEventListener('click', () => { closeModal(); resolve(true); });
+                modalActions.appendChild(confirmBtn);
+                modalOverlay.classList.add('show');
+                modalResolve = resolve;
+            });
+        }
+        function closeModal() {
+            modalOverlay.classList.remove('show');
+        }
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeModal();
+                if (modalResolve) { modalResolve(false); modalResolve = null; }
+            }
+        });
+
+        setTimeout(() => {
+            splashScreen.classList.add('hidden');
+            setTimeout(() => { splashScreen.style.display = 'none'; }, 800);
+        }, 1200);
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBanner.classList.add('show');
+        });
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const result = await deferredPrompt.userChoice;
+                if (result.outcome === 'accepted') {
+                    installBanner.classList.remove('show');
+                    showToast('App installed successfully!', 'success');
+                }
+                deferredPrompt = null;
+            }
+        });
+        window.addEventListener('appinstalled', () => {
+            installBanner.classList.remove('show');
+            showToast('App installed successfully!', 'success');
+        });
+
+        function formatMoney(v) { return '₦' + Number(v).toFixed(v % 1 === 0 ? 0 : 2); }
+        function getToday() { return new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }); }
+        function getTotalCollected() { return records.reduce((sum, r) => sum + Math.min(Number(r.earnings || 0), dailyTarget), 0); }
+        function getTotalEarnings() { return records.reduce((sum, r) => sum + Number(r.earnings || 0), 0); }
+        function getDaysWorked() { return records.length; }
+        function getEndOfWeekBalance() { return getTotalEarnings() - getTotalCollected(); }
+        function getWeeklyBalance() {
+            if (!lastSettlement) return getEndOfWeekBalance();
+            const settlementTime = new Date(lastSettlement).getTime();
+            let filtered = records.filter(r => {
+                if (r.createdAt) return new Date(r.createdAt).getTime() > settlementTime;
+                return true;
+            });
+            const earnings = filtered.reduce((s, r) => s + Number(r.earnings || 0), 0);
+            const collected = filtered.reduce((s, r) => s + Math.min(Number(r.earnings || 0), dailyTarget), 0);
+            return earnings - collected;
+        }
+        function getCurrentWeekRecords() {
+            if (!lastSettlement) return records;
+            const settlementTime = new Date(lastSettlement).getTime();
+            return records.filter(r => {
+                if (r.createdAt) return new Date(r.createdAt).getTime() > settlementTime;
+                return true;
+            });
+        }
+
+        function render() {
+            displayTarget.textContent = formatMoney(dailyTarget);
+            todayDisplay.textContent = getToday();
+            versionDisplay.textContent = 'v' + APP_VERSION;
+            if (dailyTarget > 0) dailyCollectDisplay.textContent = formatMoney(dailyTarget);
+            else dailyCollectDisplay.textContent = '₦0';
+
+            const currentRecords = getCurrentWeekRecords();
+            if (currentRecords.length === 0) {
+                collectionContainer.innerHTML = `<div class="empty-message">No records this week.</div>`;
+            } else {
+                let html = '';
+                const reversed = [...currentRecords].reverse();
+                for (let r of reversed) {
+                    const day = r.day || 'Unnamed';
+                    const earnings = Number(r.earnings || 0).toFixed(2);
+                    const collected = Math.min(Number(r.earnings || 0), dailyTarget).toFixed(2);
+                    html += `
+                        <div class="list-item">
+                            <span class="day-label">${escapeHtml(day)}</span>
+                            <span class="day-amount">₦${earnings}</span>
+                            <span class="day-collected">₦${collected}</span>
+                        </div>
+                    `;
+                }
+                collectionContainer.innerHTML = html;
+            }
+
+            const totalEarnings = getTotalEarnings();
+            const totalCollected = getTotalCollected();
+            const daysWorked = getDaysWorked();
+            const endOfWeek = getEndOfWeekBalance();
+            const weeklyBal = getWeeklyBalance();
+
+            if (collectedInput.value) {
+                const earnings = parseFloat(collectedInput.value) || 0;
+                const toCollect = Math.min(earnings, dailyTarget);
+                const remaining = earnings - toCollect;
+                remainingDisplay.textContent = formatMoney(remaining);
+            } else {
+                remainingDisplay.textContent = '₦0';
+            }
+
+            totalCollectedEl.textContent = formatMoney(totalCollected);
+            daysWorkedEl.textContent = daysWorked;
+            endOfWeekBalanceEl.textContent = formatMoney(endOfWeek);
+            weeklyBalanceDisplay.textContent = formatMoney(weeklyBal);
+
+            if (endOfWeek < 0) {
+                endOfWeekBalanceEl.className = 'amount negative';
+                weeklyStatusBadge.textContent = '⚠️ deficit';
+                weeklyStatusBadge.style.background = '#b13e3e';
+            } else if (endOfWeek === 0) {
+                endOfWeekBalanceEl.className = 'amount positive';
+                weeklyStatusBadge.textContent = '✅ on track';
+                weeklyStatusBadge.style.background = '#1e8b4c';
+            } else {
+                endOfWeekBalanceEl.className = 'amount warning';
+                weeklyStatusBadge.textContent = '💰 to collect';
+                weeklyStatusBadge.style.background = '#e67e22';
+            }
+            if (records.length === 0) {
+                weeklyStatusBadge.textContent = '—';
+                weeklyStatusBadge.style.background = '#6a8aa8';
+            }
+            renderHistory();
+        }
+
+        function renderHistory() {
+            if (weekHistory.length === 0) {
+                historyContainer.innerHTML = `<div class="empty-message" style="font-size:0.8rem;">No past weeks yet.</div>`;
+                return;
+            }
+            let html = '';
+            const sorted = [...weekHistory].reverse();
+            for (let week of sorted) {
+                const start = week.weekStart ? new Date(week.weekStart).toLocaleDateString() : 'N/A';
+                const end = week.weekEnd ? new Date(week.weekEnd).toLocaleDateString() : 'N/A';
+                const bal = week.balance || 0;
+                html += `
+                    <div class="week-card">
+                        <div class="week-header">
+                            <span>${start} – ${end}</span>
+                            <span style="font-weight:700; color:${bal >= 0 ? '#0f7b3a' : '#b13e3e'};">${formatMoney(bal)}</span>
+                        </div>
+                        <div class="week-detail">
+                            <span>Total Earnings</span>
+                            <span>${formatMoney(week.totalEarnings || 0)}</span>
+                        </div>
+                        <div class="week-detail">
+                            <span>Collected (Daily)</span>
+                            <span>${formatMoney(week.totalCollected || 0)}</span>
+                        </div>
+                        <div class="week-detail">
+                            <span>Remaining</span>
+                            <span style="font-weight:700; color:${bal >= 0 ? '#0f7b3a' : '#b13e3e'};">${formatMoney(bal)}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            historyContainer.innerHTML = html;
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                if (m === '"') return '&quot;';
+                return m;
+            });
+        }
+
+        function saveState() {
+            try {
+                const data = { records, lastSettlement, weekHistory, dailyTarget };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            } catch(e) { console.warn('save error', e); }
+        }
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    if (data.records && Array.isArray(data.records)) {
+                        records = data.records;
+                        records.forEach(r => { if (!r.createdAt) r.createdAt = new Date().toISOString(); });
+                        lastSettlement = data.lastSettlement || null;
+                        weekHistory = data.weekHistory || [];
+                        dailyTarget = data.dailyTarget || 0;
+                        return true;
+                    }
+                }
+            } catch(e) { console.warn('load error', e); }
+            return false;
+        }
+
+        async function saveSettings() {
+            const targetRaw = settingsTargetInput.value.trim();
+            if (targetRaw === '') {
+                showToast('Please enter your daily collection amount.', 'warning');
+                return;
+            }
+            const target = parseFloat(targetRaw);
+            if (isNaN(target) || target < 0) {
+                showToast('Please enter a valid positive number.', 'error');
+                return;
+            }
+            dailyTarget = target;
+            settingsTargetInput.value = '';
+            saveState();
+            render();
+            showToast(`Daily collection set to ${formatMoney(dailyTarget)}`, 'success');
+        }
+
+        async function addRecord() {
+            if (dailyTarget === 0) {
+                const confirmed = await showModal('Please set your daily collection amount in Settings first.', 'warning', 'No Target Set', 'Go to Settings', false);
+                if (confirmed) setActiveSection('sectionSettings');
+                return;
+            }
+            const earningsRaw = collectedInput.value.trim();
+            if (earningsRaw === '') {
+                showToast('Please enter your earnings for today.', 'warning');
+                collectedInput.focus();
+                return;
+            }
+            const earnings = parseFloat(earningsRaw);
+            if (isNaN(earnings) || earnings < 0) {
+                showToast('Please enter a valid amount.', 'error');
+                collectedInput.value = '';
+                collectedInput.focus();
+                return;
+            }
+            const today = getToday();
+            const existingToday = records.find(r => r.day === today);
+            if (existingToday) {
+                const confirmed = await showModal(`You already recorded ₦${existingToday.earnings} for today. Do you want to replace it?`, 'warning', 'Replace Record?', 'Replace', true);
+                if (!confirmed) return;
+                records = records.filter(r => r !== existingToday);
+            }
+            records.push({ day: today, earnings: earnings, createdAt: new Date().toISOString() });
+            saveState();
+            render();
+            collectedInput.value = '';
+            collectedInput.focus();
+            showToast(`Recorded ₦${earnings} for today`, 'success');
+        }
+
+        async function weeklySettle() {
+            if (records.length === 0) {
+                showToast('No records to settle.', 'warning');
+                return;
+            }
+            const currentRecords = getCurrentWeekRecords();
+            if (currentRecords.length === 0) {
+                showToast('No records in the current week to settle.', 'warning');
+                return;
+            }
+            const totalEarnings = currentRecords.reduce((s, r) => s + Number(r.earnings || 0), 0);
+            const totalCollected = currentRecords.reduce((s, r) => s + Math.min(Number(r.earnings || 0), dailyTarget), 0);
+            const balance = totalEarnings - totalCollected;
+            let message = `You have ${formatMoney(balance)} remaining to collect.`;
+            if (balance <= 0) message = `Your remaining balance is ${formatMoney(balance)}. Continue with settlement?`;
+            const confirmed = await showModal(message, balance > 0 ? 'success' : 'warning', 'Settle Week?', 'Settle', true);
+            if (!confirmed) return;
+            let dates = currentRecords.map(r => new Date(r.createdAt)).filter(d => !isNaN(d));
+            let weekStart = null, weekEnd = null;
+            if (dates.length > 0) {
+                weekStart = new Date(Math.min(...dates));
+                weekEnd = new Date(Math.max(...dates));
+            }
+            weekHistory.push({
+                weekStart: weekStart ? weekStart.toISOString() : null,
+                weekEnd: weekEnd ? weekEnd.toISOString() : null,
+                totalEarnings: totalEarnings,
+                totalCollected: totalCollected,
+                balance: balance,
+                settledAt: new Date().toISOString()
+            });
+            lastSettlement = new Date().toISOString();
+            saveState();
+            render();
+            showToast(`Week settled! Remaining balance collected: ${formatMoney(balance)}`, 'success');
+        }
+
+        async function resetAll() {
+            if (records.length === 0 && weekHistory.length === 0) {
+                showToast('No data to reset.', 'info');
+                return;
+            }
+            const confirmed = await showModal('This will delete all your records and history. This action cannot be undone.', 'error', 'Reset Everything?', 'Reset All', true);
+            if (!confirmed) return;
+            records = [];
+            lastSettlement = null;
+            weekHistory = [];
+            saveState();
+            render();
+            showToast('All data has been reset.', 'info');
+        }
+
+        async function clearRecords() {
+            if (records.length === 0) {
+                showToast('No records to clear.', 'info');
+                return;
+            }
+            const confirmed = await showModal('This will clear all your daily records. History will be kept.', 'warning', 'Clear Records?', 'Clear', true);
+            if (!confirmed) return;
+            records = [];
+            lastSettlement = null;
+            saveState();
+            render();
+            showToast('All records have been cleared.', 'info');
+        }
+
+        function setActiveSection(sectionId) {
+            document.querySelectorAll('.section').forEach(el => el.classList.add('section-hidden'));
+            const target = document.getElementById(sectionId);
+            if (target) target.classList.remove('section-hidden');
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
+            const navBtn = document.querySelector(`.bottom-nav .nav-item[data-section="${sectionId}"]`);
+            if (navBtn) navBtn.classList.add('active');
+        }
+
+        function initNav() {
+            setActiveSection('sectionAdd');
+            navSettings.addEventListener('click', () => setActiveSection('sectionSettings'));
+            navAdd.addEventListener('click', () => setActiveSection('sectionAdd'));
+            navDashboard.addEventListener('click', () => setActiveSection('sectionDashboard'));
+            navHistory.addEventListener('click', () => setActiveSection('sectionHistory'));
+        }
+
+        function init() {
+            loadState();
+            collectedInput.value = '';
+            settingsTargetInput.value = '';
+            render();
+            initNav();
+            collectedInput.addEventListener('input', function() {
+                const earnings = parseFloat(this.value) || 0;
+                const toCollect = Math.min(earnings, dailyTarget);
+                const remaining = earnings - toCollect;
+                remainingDisplay.textContent = formatMoney(remaining);
+            });
+            saveSettingsBtn.addEventListener('click', saveSettings);
+            addBtn.addEventListener('click', addRecord);
+            resetBtn.addEventListener('click', resetAll);
+            clearAllBtn.addEventListener('click', clearRecords);
+            weeklySettleBtn.addEventListener('click', weeklySettle);
+            settingsTargetInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveSettings(); } });
+            collectedInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); addRecord(); } });
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js').then(() => {
+                console.log('Service Worker registered');
+            }).catch(() => {
+                console.log('Service Worker registration failed');
+            });
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
